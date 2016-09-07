@@ -2,8 +2,11 @@
 A Simple Image Viewer based on the HTML
 Currently not for public,i'm reversing it from the company business to the pure edition.
 
+Here's the example:
+
+
 ```html
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
     <head>
         <title>TEST ES6</title>
