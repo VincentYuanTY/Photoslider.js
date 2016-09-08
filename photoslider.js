@@ -226,17 +226,43 @@ photoslider.open = function(PhotoArray,Index) {
         imgSrcPool[i].src = photoslider.PhotoArray[i].file;
         imgSrcPool[i].index = i;
         imgSrcPool[i].instance = new ImgSizeScanner(imgSrcPool[i].src,i)
-        imgSrcPool[i].instance.createImg();
+         
         
         console.log(imgSrcPool[i]);
      }
-
-     photoslider.checkAlltimer = setInterval(function(){
-        photoslider.checkSizeReady();           
-     },20); 
+     photoslider.alLocation();
      
+  
      
 };
+
+photoslider.alLocation = function(){
+    var count = [];
+    for(var i = 0;i<imgSrcPool.length;i++){
+        if(imgSrcPool[i].sizeFlag == false){
+            count.push(i);
+        }
+    }
+    if(count.length!=0){
+        if(count.length >=3){
+            var list = [count[0],count[1],count[2]];
+            for(var k=0;k<list.length;k++){
+                imgSrcPool[list[k]].instance.createImg();
+            }
+            photoslider.checkSizeReady(list);    
+        }else{
+            var list = count;
+            for(var k=0;k<count.length;k++){
+                imgSrcPool[count[k]].instance.createImg();
+            }
+            photoslider.checkSizeReady(list);
+        }
+    }else{
+        photoslider.allSizeReady();
+    }
+};
+
+
 
 photoslider.allSizeReady = function(){
     photoslider.LoadMImgCache();
@@ -1017,10 +1043,7 @@ photoslider.loadtheRotate = function(ifA){
                 var nextIndex = photoslider.Index+1;
             }
         }
-        console.log(photoslider.Index);
-        
-        console.log(preIndex);
-        console.log(nextIndex);
+      
         $("#PhotoSlider_NameSpace_preImg_Node").width(imgSrcPool[preIndex].width);
         $("#PhotoSlider_NameSpace_nextImg_Node").width(imgSrcPool[nextIndex].width);
         $("#PhotoSlider_NameSpace_preImg_Node").height(imgSrcPool[preIndex].height);
@@ -1034,59 +1057,69 @@ photoslider.loadtheRotate = function(ifA){
     };
 
 
-instance = [];
+var instance = [];
 class ImgSizeScanner{
     
     constructor(filename,index) {
         this.filename = filename;
         this.testTimer = null;
         this.index = index;
+        this.init = null;
         instance[index] = this;
 
     }
 
     createImg() {
+        this.init = 1;
         var img = new Image();
         img.src = this.filename;
         this.img = img;
-        this.getImgSize();
+        if(img.complete){
+            let list =[this.img.width,this.img.height];
+            imgSrcPool[this.index].width = list[0];
+            imgSrcPool[this.index].height = list[1];
+            imgSrcPool[this.index].sizeFlag = true;
+        }
+        var _index = this.index;
+        this.testTimer = setInterval(function(){  
+            console.log("tick")     
+            instance[_index].getImgSize();
+            },20);
     }
 
     getImgSize() {
-        if(this.img.width * this.img.height == 0 && this.testTimer==null){   
-             let index = this.index;
-             this.testTimer = setInterval(function(){       
-                instance[index].getImgSize();
-             },40);
-        }
-        if(this.img.width * this.img.height != 0){
+        if(this.img.width * this.img.height != 0 ){   
             clearInterval(instance[this.index].testTimer);
             this.testTimer=null;
             let list =[this.img.width,this.img.height];
             imgSrcPool[this.index].width = list[0];
             imgSrcPool[this.index].height = list[1];
             imgSrcPool[this.index].sizeFlag = true;
-            
-        }
+            console.log(imgSrcPool[this.index])
+         }
     }
 }
 
 
 
 
-photoslider.checkSizeReady = function(){
-    var count = 0;
-    for(var i=0;i<imgSrcPool.length;i++){
-        if(imgSrcPool[i].sizeFlag==true){
-            imgSrcPool[i].timer = null;
-            count++;
+photoslider.checkSizeReady = function(List){
+    var list = List;
+    var checkSizeReady_Timer = setInterval(function(){
+        console.log("tock")     
+        var count = 0;
+        for(var i=0;i<list.length;i++){
+            if(imgSrcPool[list[i]].sizeFlag ==false){
+                count = 1;
+            }
         }
-    }
-    if(count == imgSrcPool.length){
-        clearInterval(photoslider.checkAlltimer);
-        photoslider.checkAlltimer = null;     
-        photoslider.allSizeReady();
-    }
+        if(count == 0){
+            clearInterval(checkSizeReady_Timer);
+            photoslider.alLocation();
+        }
+    },30);
+    
+    
 };
 
 this.ImgSizeScanner = ImgSizeScanner;
