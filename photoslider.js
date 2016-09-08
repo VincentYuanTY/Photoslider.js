@@ -211,7 +211,7 @@ photoslider.open = function(PhotoArray,Index) {
     photoslider.IndexNext = 0;
     photoslider.PhotoArray = PhotoArray;
     photoslider.PhotoArrayL = PhotoArray.length;
-    
+    photoslider.MainImgReady = 0;
     photoslider.prenextPool = [];
     imgSrcPool = new Array(photoslider.PhotoArrayL);
     img = new Array(photoslider.PhotoArrayL);
@@ -236,37 +236,41 @@ photoslider.open = function(PhotoArray,Index) {
      
 };
 
-photoslider.alLocation = function(){
-    var count = [];
-    for(var i = 0;i<imgSrcPool.length;i++){
-        if(imgSrcPool[i].sizeFlag == false){
-            count.push(i);
+photoslider.alLocation = function () {
+        var count = [];
+        //先读指定的
+        if(imgSrcPool[photoslider.Index].sizeFlag == false){
+            count.push(photoslider.Index);
         }
-    }
-    if(count.length!=0){
-        if(count.length >=3){
-            var list = [count[0],count[1],count[2]];
-            for(var k=0;k<list.length;k++){
-                imgSrcPool[list[k]].instance.createImg();
+        for (var i = 0; i < imgSrcPool.length; i++) {
+            if(i ==photoslider.Index){
+                continue;
             }
-            photoslider.checkSizeReady(list);    
-        }else{
-            var list = count;
-            for(var k=0;k<count.length;k++){
-                imgSrcPool[count[k]].instance.createImg();
+            if (imgSrcPool[i].sizeFlag == false) {
+                count.push(i);
             }
-            photoslider.checkSizeReady(list);
         }
-    }else{
-        photoslider.allSizeReady();
-    }
-};
-
-
-
-photoslider.allSizeReady = function(){
-    photoslider.LoadMImgCache();
-};
+        if (count.length != 0) {
+            if (count.length >= 3) {
+                var list = [count[0], count[1], count[2]];
+                for (var k = 0; k < list.length; k++) {
+                    imgSrcPool[list[k]].instance.createImg();
+                }
+                photoslider.checkSizeReady(list);
+            } else {
+                var list = count;
+                for (var k = 0; k < count.length; k++) {
+                    imgSrcPool[count[k]].instance.createImg();
+                }
+                photoslider.checkSizeReady(list);
+            }
+        } else {
+            if(photoslider.MainImgReady == 0){     
+                photoslider.LoadMImgCache();
+            }
+            return;
+        }
+    };
 
 
 
@@ -1074,15 +1078,21 @@ class ImgSizeScanner{
         var img = new Image();
         img.src = this.filename;
         this.img = img;
-        if(img.complete){
-            let list =[this.img.width,this.img.height];
-            imgSrcPool[this.index].width = list[0];
-            imgSrcPool[this.index].height = list[1];
-            imgSrcPool[this.index].sizeFlag = true;
-        }
+        img.onload =function(){  
+                if(this.index==photoslider.Index){
+                    photoslider.initTheLocation(1);
+                }
+            }  
+            if (img.complete) {
+                var list = [this.img.width, this.img.height];
+                imgSrcPool[this.index].width = list[0];
+                imgSrcPool[this.index].height = list[1];
+                imgSrcPool[this.index].sizeFlag = true;
+            }
         var _index = this.index;
-        this.testTimer = setInterval(function(){  
-            console.log("tick")     
+
+            this.testTimer = setInterval(function(){  
+           
             instance[_index].getImgSize();
             },20);
     }
@@ -1095,7 +1105,10 @@ class ImgSizeScanner{
             imgSrcPool[this.index].width = list[0];
             imgSrcPool[this.index].height = list[1];
             imgSrcPool[this.index].sizeFlag = true;
-            console.log(imgSrcPool[this.index])
+            if(this.index == photoslider.Index){
+                    photoslider.MainImgReady = 1;
+                    photoslider.LoadMImgCache();
+            }
          }
     }
 }
@@ -1106,7 +1119,7 @@ class ImgSizeScanner{
 photoslider.checkSizeReady = function(List){
     var list = List;
     var checkSizeReady_Timer = setInterval(function(){
-        console.log("tock")     
+       
         var count = 0;
         for(var i=0;i<list.length;i++){
             if(imgSrcPool[list[i]].sizeFlag ==false){
