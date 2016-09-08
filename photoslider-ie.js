@@ -196,6 +196,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         photoslider.IndexNext = 0;
         photoslider.PhotoArray = PhotoArray;
         photoslider.PhotoArrayL = PhotoArray.length;
+        photoslider.MainImgReady = 0;
 
         photoslider.prenextPool = [];
         imgSrcPool = new Array(photoslider.PhotoArrayL);
@@ -211,7 +212,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             imgSrcPool[i].index = i;
             imgSrcPool[i].instance = new ImgSizeScanner(imgSrcPool[i].src, i);
 
-            console.log(imgSrcPool[i]);
+            
         }
         photoslider.alLocation();
     };
@@ -245,13 +246,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 photoslider.checkSizeReady(list);
             }
         } else {
-            photoslider.allSizeReady();
+            if(photoslider.MainImgReady == 0){     
+                photoslider.LoadMImgCache();
+            }
+            return;
         }
     };
 
-    photoslider.allSizeReady = function () {
-        photoslider.LoadMImgCache();
-    };
+    
 
     photoslider.LoadMImgCache = function () {
         photoslider.checkMainAlready();
@@ -547,7 +549,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         //   if(photoslider.testRotateifHorizontal()==0){
         var ImgWidth = imgSrcPool[photoslider.Index].width;
         var ImgHeight = imgSrcPool[photoslider.Index].height;
-
+        
         var cate_select_width = $("#PhotoSlider_NameSpace_ToolBarContent_category_Select_Node").width();
         var mutip = imgSrcPool[photoslider.Index].width / imgSrcPool[photoslider.Index].height;
         //重设背景大小
@@ -571,40 +573,45 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         $("#PhotoSlider_NameSpace_MainImg_Node").css("transition", "all 0.2s");
 
         //重设IMG大小和位置
-
-        if (ImgWidth >= WinWidth || ImgHeight >= WinHeight) {
-            if (ImgWidth >= WinWidth && ImgHeight < WinHeight) {
-                $("#PhotoSlider_NameSpace_MainImg_Node").css("width", WinWidth);
-                $("#PhotoSlider_NameSpace_MainImg_Node").css("height", WinWidth / mutip);
-                $("#PhotoSlider_NameSpace_MainImg_Node").css("left", 0);
-                $("#PhotoSlider_NameSpace_MainImg_Node").css("top", WinHeight / 2 - WinWidth / mutip / 2);
-            } else if (ImgWidth < WinWidth && ImgHeight >= WinHeight) {
-                $("#PhotoSlider_NameSpace_MainImg_Node").css("height", WinHeight);
-                $("#PhotoSlider_NameSpace_MainImg_Node").css("width", WinHeight * mutip);
-                $("#PhotoSlider_NameSpace_MainImg_Node").css("top", 0);
-                $("#PhotoSlider_NameSpace_MainImg_Node").css("left", WinWidth / 2 - WinHeight * mutip / 2);
-            } else {
-                //长和宽都大于屏幕
-                if (WinWidth / mutip >= WinHeight) {
+        if(ImgWidth && ImgHeight){
+            if (ImgWidth >= WinWidth || ImgHeight >= WinHeight) {
+                if (ImgWidth >= WinWidth && ImgHeight < WinHeight) {
+                    $("#PhotoSlider_NameSpace_MainImg_Node").css("width", WinWidth);
+                    $("#PhotoSlider_NameSpace_MainImg_Node").css("height", WinWidth / mutip);
+                    $("#PhotoSlider_NameSpace_MainImg_Node").css("left", 0);
+                    $("#PhotoSlider_NameSpace_MainImg_Node").css("top", WinHeight / 2 - WinWidth / mutip / 2);
+                } else if (ImgWidth < WinWidth && ImgHeight >= WinHeight) {
                     $("#PhotoSlider_NameSpace_MainImg_Node").css("height", WinHeight);
                     $("#PhotoSlider_NameSpace_MainImg_Node").css("width", WinHeight * mutip);
                     $("#PhotoSlider_NameSpace_MainImg_Node").css("top", 0);
                     $("#PhotoSlider_NameSpace_MainImg_Node").css("left", WinWidth / 2 - WinHeight * mutip / 2);
                 } else {
-                    $("#PhotoSlider_NameSpace_MainImg_Node").css("width", WinWidth);
-                    $("#PhotoSlider_NameSpace_MainImg_Node").css("height", WinWidth / mutip);
-                    $("#PhotoSlider_NameSpace_MainImg_Node").css("left", 0);
-                    $("#PhotoSlider_NameSpace_MainImg_Node").css("top", WinHeight / 2 - WinWidth / mutip / 2);
+                    //长和宽都大于屏幕
+                    if (WinWidth / mutip >= WinHeight) {
+                        $("#PhotoSlider_NameSpace_MainImg_Node").css("height", WinHeight);
+                        $("#PhotoSlider_NameSpace_MainImg_Node").css("width", WinHeight * mutip);
+                        $("#PhotoSlider_NameSpace_MainImg_Node").css("top", 0);
+                        $("#PhotoSlider_NameSpace_MainImg_Node").css("left", WinWidth / 2 - WinHeight * mutip / 2);
+                    } else {
+                        $("#PhotoSlider_NameSpace_MainImg_Node").css("width", WinWidth);
+                        $("#PhotoSlider_NameSpace_MainImg_Node").css("height", WinWidth / mutip);
+                        $("#PhotoSlider_NameSpace_MainImg_Node").css("left", 0);
+                        $("#PhotoSlider_NameSpace_MainImg_Node").css("top", WinHeight / 2 - WinWidth / mutip / 2);
+                    }
                 }
+            } else {
+
+                $("#PhotoSlider_NameSpace_MainImg_Node").css("width", ImgWidth);
+                $("#PhotoSlider_NameSpace_MainImg_Node").css("height", ImgHeight);
+                $("#PhotoSlider_NameSpace_MainImg_Node").css("left", WinWidth / 2 - ImgWidth / 2);
+                $("#PhotoSlider_NameSpace_MainImg_Node").css("top", WinHeight / 2 - ImgHeight / 2);
             }
-        } else {
-
-            $("#PhotoSlider_NameSpace_MainImg_Node").css("width", ImgWidth);
-            $("#PhotoSlider_NameSpace_MainImg_Node").css("height", ImgHeight);
-            $("#PhotoSlider_NameSpace_MainImg_Node").css("left", WinWidth / 2 - ImgWidth / 2);
-            $("#PhotoSlider_NameSpace_MainImg_Node").css("top", WinHeight / 2 - ImgHeight / 2);
+        }else{  
+                $("#PhotoSlider_NameSpace_MainImg_Node").css("width", WinWidth * 0.7);
+                $("#PhotoSlider_NameSpace_MainImg_Node").css("height", WinHeight * 0.7);
+                $("#PhotoSlider_NameSpace_MainImg_Node").css("left", WinWidth / 2 - (WinWidth * 0.7) / 2);
+                $("#PhotoSlider_NameSpace_MainImg_Node").css("top", WinHeight / 2 - (WinHeight * 0.7) / 2);
         }
-
         //设置前后container的位置和大小
         $("#PhotoSlider_NameSpace_nextImg_Node").css("transition", "0s");
         $("#PhotoSlider_NameSpace_preImg_Node").css("transition", "0s");
@@ -962,6 +969,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             var img = new Image();
             img.src = this.filename;
             this.img = img;
+            img.onload =function(){  
+                if(this.index==photoslider.Index){
+                    photoslider.initTheLocation(1);
+                }
+            }  
             if (img.complete) {
                 var list = [this.img.width, this.img.height];
                 imgSrcPool[this.index].width = list[0];
@@ -970,7 +982,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             }
             var _index = this.index;
             this.testTimer = setInterval(function () {
-                console.log("tick");
+              
                 instance[_index].getImgSize();
             }, 20);
         };
@@ -985,9 +997,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 imgSrcPool[this.index].height = list[1];
                 imgSrcPool[this.index].sizeFlag = true;
                 if(this.index == photoslider.Index){
+                    photoslider.MainImgReady = 1;
                     photoslider.LoadMImgCache();
                 }
-                console.log(imgSrcPool[this.index]);
+            
             }
         };
 
@@ -997,7 +1010,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     photoslider.checkSizeReady = function (List) {
         var list = List;
         var checkSizeReady_Timer = setInterval(function () {
-            console.log("tock");
+        
             var count = 0;
             for (var i = 0; i < list.length; i++) {
                 if (imgSrcPool[list[i]].sizeFlag == false) {
