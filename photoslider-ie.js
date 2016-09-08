@@ -218,7 +218,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
     photoslider.alLocation = function () {
         var count = [];
+        //先读指定的
+        if(imgSrcPool[photoslider.Index].sizeFlag == false){
+            count.push(photoslider.Index);
+        }
         for (var i = 0; i < imgSrcPool.length; i++) {
+            if(i ==photoslider.Index){
+                continue;
+            }
             if (imgSrcPool[i].sizeFlag == false) {
                 count.push(i);
             }
@@ -475,6 +482,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         var MainImg_Node = document.createElement("div");
         MainImg_Node.setAttribute("id", "PhotoSlider_NameSpace_MainImg_Node");
         MainImg_Node.style.zIndex = "100";
+        MainImg_Node.style.backgroundColor ="#041326";
         MainImg_Node.style.backgroundImage = "";
         MainImg_Node.style.backgroundSize = "cover";
         MainImg_Node.style.position = "absolute";
@@ -970,11 +978,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         ImgSizeScanner.prototype.getImgSize = function getImgSize() {
             if (this.img.width * this.img.height != 0) {
                 clearInterval(instance[this.index].testTimer);
+                
                 this.testTimer = null;
                 var list = [this.img.width, this.img.height];
                 imgSrcPool[this.index].width = list[0];
                 imgSrcPool[this.index].height = list[1];
                 imgSrcPool[this.index].sizeFlag = true;
+                if(this.index == photoslider.Index){
+                    photoslider.LoadMImgCache();
+                }
                 console.log(imgSrcPool[this.index]);
             }
         };
