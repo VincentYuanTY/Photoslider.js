@@ -21,14 +21,12 @@ Here's the example:
         <script src="jquery.min.js"></script>
         <script src="photoslider.js"></script>
         <script>
-        // var a = [];
-        // var pathd = "sample/";
-        // for(var i=0;i<8;i++){
-        //     a[i]={};
-        //     a[i].file=`${pathd}${i+1}.jpg`
-        // }
-        // console.log(a);
-        // photoslider.open(a,3);
+        //You should create a Array first and make each element be an Object.
+        //var arr = [];
+        //var arr[0] = {},arr[1] = {};
+        //    arr[0].file = 'The image1 src path'     
+        //    arr[1].file = 'The image2 src path'    
+        // photoslider.open(arr,index);    if the index is 0,it will show the first img,if 1,show the second and so on.
 
         </script> 
     </body>
